@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body{
+  background: #F0F7F4 !important;
+}
+
+.modal-content{
+  background: #F0F7F4 !important;
+  border: 0 !important;
+}
+
+button.btn.btn-primary{
+  font-family: lato;
+  border-radius: 1.5rem;
+  background: #61757E;
+  color: white;
+  border: none;
+}
+
+input {
+  font-family: lato;
+  border-radius: 1.5rem;
+  color:white;
+  background: #61757E;
+}
+
+input::placeholder {
+  color:white;
+  font-family: lato;
+}
+
+button.btn.btn-primary:active{
+  background: #4E5B66;
+}
+
+button.btn.btn-primary:hover{
+  background: #4E5B66;
+}
