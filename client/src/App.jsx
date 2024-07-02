@@ -7,6 +7,7 @@ import Settings from './components/Settings/Settings';
 import Favorites from './components/Favorites/Favorites';
 import { useEffect } from 'react';
 import axios from './axiosConfig';
+import ReactGA from 'react-ga';
 
 function App() {
   const location = useLocation();
@@ -23,6 +24,11 @@ function App() {
           sessionStorage.removeItem('user');
         }
       });
+    
+    ReactGA.send({
+      hitType: 'pageview',
+      page: location.pathname + location.search,
+    });
   }, [location]);
 
   return (
