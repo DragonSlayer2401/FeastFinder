@@ -33,7 +33,7 @@ const FoodCard = ({ image, title, recipe }) => {
 };
 
 FoodCard.propTypes = {
-  image: PropTypes.string.isRequired,
+  image: PropTypes.string,
   title: PropTypes.string.isRequired,
   recipe: PropTypes.object.isRequired,
 };

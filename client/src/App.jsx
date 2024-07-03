@@ -20,8 +20,7 @@ function App() {
       })
       .then((response) => {
         if (!response.data.authenticated) {
-          localStorage.removeItem('token');
-          sessionStorage.removeItem('user');
+          localStorage.removeItem('token');         
         }
       });
     

@@ -1,18 +1,33 @@
 import NavBar from '../Navigation/NavBar';
 import { IconUserCircle } from '@tabler/icons-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import axios from '../../axiosConfig';
 import DOMPurify from 'dompurify';
+import { useNavigate } from 'react-router-dom';
 
 const Settings = () => {
-  const username = JSON.parse(sessionStorage.getItem('user')).username;
+  const [username, setUsername] = useState();
+  const navigate = useNavigate();
   const [fieldValues, setFieldValues] = useState({
     username: '',
     confirmUsername: '',
     password: '',
     confirmPassword: '',
   });
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    axios
+      .get('/users/verify-jwt', {
+        headers: { Authorization: token },
+      })
+      .then((response) => {
+        if (response.data.authenticated) {
+          setUsername(response.data.username);      
+        }
+      });
+  }, []);
 
   const handleInput = (event) => {
     const placeholder = event.target.placeholder;
@@ -58,11 +73,11 @@ const Settings = () => {
 
           alert(response.data.message);
 
-          if (response.data.username) {
-            const user = JSON.parse(sessionStorage.getItem('user'));
-            const newUser = { ...user, username: response.data.username };
-            sessionStorage.setItem('user', JSON.stringify(newUser));
-          }
+          //Logs out the user and clears their JWT
+          localStorage.clear()
+          
+          //Navigates to homepage
+          navigate("/");
         });
     } else {
       if (fieldValues.username !== fieldValues.confirmUsername) {

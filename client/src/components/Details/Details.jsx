@@ -12,24 +12,31 @@ const Details = () => {
   const recipe = location.state.recipe;
 
   useEffect(() => {
-    const userId = JSON.parse(sessionStorage.getItem('user'))?.id;
+    const token = localStorage.getItem('token');
 
-    // Checks to make sure theres a user before maiking request
-    if (userId) {
-      axios
-        .get(`/users/favorites?id=${userId}`, {
-          headers: { Authorization: token },
-        })
-        .then((response) => {
-          const matchingRecipe = response.data.some(
-            (e) => e.recipeId === recipe.id,
-          );
+    // Checks to make sure theres a valid user before maiking request
+    axios
+      .get('/users/verify-jwt', {
+        headers: { Authorization: token },
+      })
+      .then((response) => {
+        if (response.data.authenticated) {
+          const userId = response.data.id;
+          axios
+            .get(`/users/favorites?id=${userId}`, {
+              headers: { Authorization: token },
+            })
+            .then((response) => {
+              const matchingRecipe = response.data.some(
+                (e) => e.recipeId === recipe.id,
+              );
 
-          if (matchingRecipe) {
-            setChangeIcon('filled');
-          }
-        });
-    }
+              if (matchingRecipe) {
+                setChangeIcon('filled');
+              }
+            });
+        }
+      });
 
     let ingredientDetails;
     let instructionDetails;
@@ -112,7 +119,7 @@ const Details = () => {
       })
       .then((response) => {
         if (response.data.authenticated) {
-          const userId = JSON.parse(sessionStorage.getItem('user'))?.id;
+          const userId = response.data.id;
           if (changeIcon === 'outline') {
             setChangeIcon('filled');
             axios.put(
@@ -150,7 +157,6 @@ const Details = () => {
           }
         } else {
           localStorage.removeItem('token');
-          sessionStorage.removeItem('user');
         }
       });
   };

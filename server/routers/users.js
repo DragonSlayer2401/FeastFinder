@@ -106,6 +106,7 @@ router.post('/login', (req, res) => {
         const token = jwt.encode(
           {
             id: user._id,
+            username: user.username,
             expiration: jwtExpiration,
           },
           process.env.SECRET_KEY
@@ -145,6 +146,8 @@ router.get('/verify-jwt', (req, res) => {
       return res.status(200).json({
         message: 'Valid JWT',
         authenticated: true,
+        username: decodedToken.username,
+        id: decodedToken.id,
       });
     }
   } catch (error) {

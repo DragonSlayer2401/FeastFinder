@@ -1,10 +1,11 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import Home from './Home/Home';
 import { useEffect, useState } from 'react';
 import axios from '../axiosConfig';
 
 const ProtectedRoute = () => {
   const [authenticated, setAuthenticated] = useState(false);
+  const navigate = useNavigate()
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -17,10 +18,10 @@ const ProtectedRoute = () => {
 
         if (!response.data.authenticated) {
           localStorage.removeItem('token');
-          sessionStorage.removeItem('user');
+          navigate("/")
         }
       });
-  }, []);
+  }, [navigate]);
   if (authenticated) {
     return <Outlet />;
   } else {

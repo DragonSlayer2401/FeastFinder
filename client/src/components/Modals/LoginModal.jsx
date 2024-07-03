@@ -27,19 +27,11 @@ const LoginModal = ({ show, toggle, status }) => {
       .then((response) => {
         alert(response.data.message);
         if (response.data.message === 'Login successful') {
-          sessionStorage.setItem(
-            'user',
-            JSON.stringify({
-              username: response.data.username,
-              id: response.data.id,
-            }),
-
-            localStorage.setItem('token', response.data.token),
-          );
+          localStorage.setItem('token', response.data.token),
           toggle();
           status({
             loggedIn: true,
-            username: JSON.parse(sessionStorage.getItem('user')).username,
+            username: DOMPurify.sanitize(response.data.username),
           });
         }
       })
