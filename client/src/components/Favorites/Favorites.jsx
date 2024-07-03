@@ -7,15 +7,23 @@ const Favorites = () => {
   const [favorites, setFavorites] = useState();
 
   useEffect(() => {
-    const userId = JSON.parse(sessionStorage.getItem('user'))?.id;
     const token = localStorage.getItem('token');
 
     axios
-      .get(`/users/favorites?id=${userId}`, {
+      .get('/users/verify-jwt', {
         headers: { Authorization: token },
       })
       .then((response) => {
-        setFavorites(response.data);
+        if (response.data.authenticated) {
+          const userId = response.data.id;
+          axios
+            .get(`/users/favorites?id=${userId}`, {
+              headers: { Authorization: token },
+            })
+            .then((response) => {
+              setFavorites(response.data);
+            });
+        }
       });
   }, []);
 

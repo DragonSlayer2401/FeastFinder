@@ -6,6 +6,7 @@ import SignupModal from '../Modals/SignupModal';
 import { useEffect, useState } from 'react';
 import { IconUserCircle } from '@tabler/icons-react';
 import DOMPurify from 'dompurify';
+import axios from '../../axiosConfig';
 
 const NavBar = () => {
   const [loginShow, setLoginShow] = useState(false);
@@ -16,13 +17,19 @@ const NavBar = () => {
   });
 
   useEffect(() => {
-    const user = JSON.parse(sessionStorage.getItem('user'));
-    if (user) {
-      setLoginStatus({
-        loggedIn: true,
-        username: DOMPurify.sanitize(user.username),
+    const token = localStorage.getItem('token');
+    axios
+      .get('/users/verify-jwt', {
+        headers: { Authorization: token },
+      })
+      .then((response) => {
+        if (response.data.authenticated) {
+          setLoginStatus({
+            loggedIn: true,
+            username: DOMPurify.sanitize(response.data.username),
+          });
+        }
       });
-    }
   }, [setLoginStatus]);
 
   const toggleLoginModal = () => {
@@ -35,8 +42,9 @@ const NavBar = () => {
 
   const handleLogout = () => {
     //logout logic
-    sessionStorage.clear();
     localStorage.clear();
+    //Refreshes the page to show the updated state
+    window.location.reload();
   };
 
   return (
