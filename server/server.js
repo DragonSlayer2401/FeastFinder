@@ -7,9 +7,14 @@ const userRouter = require('./routers/users');
 const recipeRouter = require('./routers/recipes');
 const path = require('path');
 
+const origin =
+  process.env.NODE_ENV === 'production'
+    ? 'https://feast-finder2-d0271ea4d475.herokuapp.com/'
+    : 'http://localhost:5173';
+
 app.use(
   cors({
-    origin: 'https://feast-finder2-d0271ea4d475.herokuapp.com/',
+    origin: origin,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
   })
@@ -18,7 +23,7 @@ app.use(
 app.options(
   '*',
   cors({
-    origin: 'https://feast-finder2-d0271ea4d475.herokuapp.com/',
+    origin: origin,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
   })
