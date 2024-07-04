@@ -23,13 +23,20 @@ const SignupModal = ({ show, toggle, status }) => {
 
   const handleSubmit = async () => {
     if (userDetails.password === userDetails.confirmPassword) {
+      const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+      if (!passwordPattern.test(userDetails.password)) {
+        alert(
+          'Invalid Password. Your password must include the following:\n\n- At least one uppercase letter\n- At least one lowercase letter\n- At least one number\n- At least 8 characters long',
+        );
+        return;
+      }
+
       await axios
         .post('/users/register', {
           username: DOMPurify.sanitize(userDetails.username),
           password: DOMPurify.sanitize(userDetails.password),
         })
         .then((response) => {
-          console.log(response.data === 'User added to the database');
           if (response.data === 'User added to the database') {
             axios
               .post('/users/login', {
@@ -47,6 +54,17 @@ const SignupModal = ({ show, toggle, status }) => {
                 }
               })
               .catch((err) => alert(err.response.data.message));
+          }
+        })
+        .catch((err) => {
+          const message = err.response.data.message;
+
+          if (message === 'Invalid Password') {
+            alert(
+              'Invalid Password. Your password must include the following:\n\n- At least one uppercase letter\n- At least one lowercase letter\n- At least one number\n- At least 8 characters long',
+            );
+          } else {
+            alert(message);
           }
         });
     }

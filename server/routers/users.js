@@ -51,7 +51,13 @@ router.post('/register', (req, res) => {
     .exec()
     .then((users) => {
       if (users.length > 0) {
-        return res.send('User already exists.');
+        return res.status(409).json({ message: 'Username is taken' });
+      }
+
+      const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+
+      if (!passwordPattern.test(req.body.password)) {
+        return res.status(400).json({ message: 'Invalid Password' });
       }
 
       bcrypt.genSalt(10, (err, salt) => {
