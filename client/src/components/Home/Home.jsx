@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import NavBar from '../Navigation/NavBar';
 import axios from 'axios';
 import FoodCard from '../FoodCard';
+import { Helmet } from 'react-helmet';
 
 const Home = () => {
   const [recipes, setRecipes] = useState(
@@ -20,6 +21,13 @@ const Home = () => {
 
   return (
     <>
+      <Helmet>
+        <title>Home</title>
+        <meta
+          name="description"
+          content="Discover the best recipes with our top 10 delicious and easy-to-make dishes. Perfect for home cooks looking to create amazing meals. Find your next favorite recipe today!"
+        />
+      </Helmet>
       <NavBar />
       <div className="grid gap-3 mx-auto mt-20 mb-20 grid-cols-2 w-full lg:grid-cols-4 lg:w-10/12">
         <h2
@@ -28,14 +36,15 @@ const Home = () => {
         >
           Try Some of These Recipes
         </h2>
-        {recipes && recipes.map((recipe) => (
-          <FoodCard
-            image={recipe.image}
-            title={recipe.title}
-            recipe={recipe}
-            key={recipe.id}
-          />
-        ))}
+        {recipes &&
+          recipes.map((recipe) => (
+            <FoodCard
+              image={recipe.image}
+              title={recipe.title}
+              recipe={recipe}
+              key={recipe.id}
+            />
+          ))}
       </div>
     </>
   );

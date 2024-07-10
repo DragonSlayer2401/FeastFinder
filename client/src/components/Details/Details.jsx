@@ -3,6 +3,7 @@ import NavBar from '../Navigation/NavBar';
 import axios from '../../axiosConfig';
 import { useEffect, useState } from 'react';
 import { IconHeart, IconHeartFilled } from '@tabler/icons-react';
+import { Helmet } from 'react-helmet';
 
 const Details = () => {
   const [recipeInfo, setRecipeInfo] = useState();
@@ -42,10 +43,22 @@ const Details = () => {
     let instructionDetails;
     let ingredients;
     let instructions;
+    let dishes = '';
+
     if (!recipe.extendedIngredients && !recipe.analyzedInstructions) {
       axios.get(`/recipes/information?id=${recipe.id}`).then((response) => {
         ingredientDetails = response.data.extendedIngredients;
         instructionDetails = response.data.analyzedInstructions[0].steps;
+        const dishTypes = response.data.dishTypes;
+        dishes = `${dishTypes[0]},`;
+
+        for (let i = 1; i < dishTypes.length; i++) {
+          if (i === dishTypes.length - 1) {
+            dishes = `${dishes} or ${dishTypes[i]}`;
+          } else {
+            dishes = `${dishes} ${dishTypes[i]},`;
+          }
+        }
 
         ingredients = ingredientDetails.map((ingredient) => {
           return (
@@ -70,11 +83,21 @@ const Details = () => {
             {instruction.step}
           </li>
         ));
-        setRecipeInfo({ ingredients, instructions });
+        setRecipeInfo({ ingredients, instructions, dishes });
       });
     } else {
       ingredientDetails = recipe.extendedIngredients;
       instructionDetails = recipe.analyzedInstructions[0].steps;
+      const dishTypes = recipe.dishTypes;
+      dishes = `${dishTypes[0]},`;
+
+      for (let i = 1; i < dishTypes.length; i++) {
+        if (i === dishTypes.length - 1) {
+          dishes = `${dishes} or ${dishTypes[i]}`;
+        } else {
+          dishes = `${dishes} ${dishTypes[i]},`;
+        }
+      }
       const ingredientMap = new Map();
 
       ingredients = ingredientDetails.map((ingredient) => {
@@ -108,7 +131,7 @@ const Details = () => {
         </li>
       ));
     }
-    setRecipeInfo({ ingredients, instructions });
+    setRecipeInfo({ ingredients, instructions, dishes });
   }, [recipe, token]);
 
   const handleFavorite = () => {
@@ -163,6 +186,13 @@ const Details = () => {
 
   return (
     <>
+      <Helmet>
+        <title>{recipe.title} | Delicious and Easy Recipe</title>
+        <meta
+          name="description"
+          content={`Learn how to make ${recipe.title} with our easy to follow recipe. Perfect for ${recipeInfo && recipeInfo.dishes} this dish will hit with everyone.`}
+        />
+      </Helmet>
       <NavBar />
       <div className="grid gap-3  mx-auto mt-20 mb-20 grid-cols-1 w-9/12 md:grid-cols-2 ">
         <img src={recipe.image} alt={recipe.title} className="w-full h-full" />
