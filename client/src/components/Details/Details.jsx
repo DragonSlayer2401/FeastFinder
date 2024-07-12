@@ -158,50 +158,52 @@ const Details = () => {
         />
       </Helmet>
       <NavBar />
-      <div className="grid gap-3  mx-auto mt-20 mb-20 grid-cols-1 w-9/12 md:grid-cols-2 ">
-        <img src={recipe.image} alt={recipe.title} className="w-full h-full" />
-        <div className="flex flex-col gap-3">
-          <div
-            className="p-4 flex justify-center gap-2 items-center flex-col"
-            style={{ background: '#4B6D62' }}
-          >
-            <h1
-              style={{ fontFamily: 'montserrat' }}
-              className="text-white text-2xl text-center font-bold"
-            >
-              {recipe.title}
-            </h1>
-            {changeIcon === 'outline' && (
-              <IconHeart
-                className="text-white cursor-pointer"
-                size={35}
-                onClick={() => handleFavorite()}
-              />
-            )}
-            {changeIcon === 'filled' && (
-              <IconHeartFilled
-                className="text-white cursor-pointer"
-                size={35}
-                onClick={() => handleFavorite()}
-              />
-            )}
-          </div>
-          <div style={{ background: '#4B6D62' }} className="p-2 h-full">
-            <h2
-              style={{ fontFamily: 'montserrat' }}
-              className="text-white text-center text-2xl font-semibold"
-            >
-              Ingredients
-            </h2>
-            <ul className="w-fit mx-auto">
-              {recipeInfo && recipeInfo.ingredients}
-            </ul>
-          </div>
-        </div>
+      <div
+        className="row gap-3 mx-auto mb-20 w-9/12 sm:w-3/5 md:w-5/12"
+        style={{ marginTop: '80px' }}
+      >
         <div
+          className="py-4 px-0 flex justify-center gap-2 items-center flex-col"
           style={{ background: '#4B6D62' }}
-          className="w-full md:col-span-2 p-2"
         >
+          <h1
+            style={{ fontFamily: 'montserrat' }}
+            className="text-white text-2xl text-center font-bold"
+          >
+            {recipe.title}
+          </h1>
+          {changeIcon === 'outline' && (
+            <IconHeart
+              className="text-white cursor-pointer"
+              size={35}
+              onClick={() => handleFavorite()}
+            />
+          )}
+          {changeIcon === 'filled' && (
+            <IconHeartFilled
+              className="text-white cursor-pointer"
+              size={35}
+              onClick={() => handleFavorite()}
+            />
+          )}
+        </div>
+        <img
+          src={recipe.image}
+          alt={recipe.title}
+          className="w-full h-full px-0"
+        />
+        <div style={{ background: '#4B6D62' }} className="py-2 h-full">
+          <h2
+            style={{ fontFamily: 'montserrat' }}
+            className="text-white text-center text-2xl font-semibold"
+          >
+            Ingredients
+          </h2>
+          <ul className="w-fit mx-auto">
+            {recipeInfo && recipeInfo.ingredients}
+          </ul>
+        </div>
+        <div style={{ background: '#4B6D62' }} className="w-full py-2">
           <h2
             className="text-white text-2xl text-center font-semibold"
             style={{ fontFamily: 'montserrat' }}
