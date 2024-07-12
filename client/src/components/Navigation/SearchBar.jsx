@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import axios from '../../axiosConfig';
+import axios from '../../utils/axiosConfig';
 import { useNavigate } from 'react-router-dom';
 
 const SearchBar = () => {

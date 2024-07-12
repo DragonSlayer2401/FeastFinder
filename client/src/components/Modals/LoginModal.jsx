@@ -1,7 +1,7 @@
 import { Button, Modal } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import { useState } from 'react';
-import axios from '../../axiosConfig';
+import axios from '../../utils/axiosConfig';
 import DOMPurify from 'dompurify';
 
 const LoginModal = ({ show, toggle, status }) => {
@@ -27,8 +27,7 @@ const LoginModal = ({ show, toggle, status }) => {
       .then((response) => {
         alert(response.data.message);
         if (response.data.message === 'Login successful') {
-          localStorage.setItem('token', response.data.token),
-          toggle();
+          localStorage.setItem('token', response.data.token), toggle();
           status({
             loggedIn: true,
             username: DOMPurify.sanitize(response.data.username),

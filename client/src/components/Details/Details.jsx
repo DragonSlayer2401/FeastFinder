@@ -1,188 +1,152 @@
 import { useLocation } from 'react-router-dom';
 import NavBar from '../Navigation/NavBar';
-import axios from '../../axiosConfig';
-import { useEffect, useState } from 'react';
+import axios from '../../utils/axiosConfig';
+import { useCallback, useEffect, useState } from 'react';
 import { IconHeart, IconHeartFilled } from '@tabler/icons-react';
 import { Helmet } from 'react-helmet';
+import { verifyJWT } from '../../utils/utils';
 
 const Details = () => {
+  const token = localStorage.getItem('token');
   const [recipeInfo, setRecipeInfo] = useState();
   const [changeIcon, setChangeIcon] = useState('outline');
-  const token = localStorage.getItem('token');
   const location = useLocation();
   const recipe = location.state.recipe;
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
+  // Checks if recipe is favorited or not
+  const checkFavoriteStatus = useCallback(
+    (userId) => {
+      axios
+        .get(`/users/favorites?id=${userId}`, {
+          headers: { Authorization: token },
+        })
+        .then((response) => {
+          const matchingRecipe = response.data.some(
+            (e) => e.recipeId === recipe.id,
+          );
 
-    // Checks to make sure theres a valid user before maiking request
-    axios
-      .get('/users/verify-jwt', {
+          if (matchingRecipe) {
+            setChangeIcon('filled');
+          }
+        });
+    },
+    [token, recipe.id],
+  );
+
+  // Updates the user's favorites in the database
+  const updateUserFavorites = (userId) => {
+    axios.put(
+      '/users/update/favorites',
+      {
+        id: userId,
+        favoritedRecipe: {
+          recipeName: recipe.title,
+          recipeId: recipe.id,
+          recipe: recipe,
+          image: recipe.image,
+        },
+      },
+      {
         headers: { Authorization: token },
-      })
-      .then((response) => {
-        if (response.data.authenticated) {
-          const userId = response.data.id;
-          axios
-            .get(`/users/favorites?id=${userId}`, {
-              headers: { Authorization: token },
-            })
-            .then((response) => {
-              const matchingRecipe = response.data.some(
-                (e) => e.recipeId === recipe.id,
-              );
+      },
+    );
+  };
 
-              if (matchingRecipe) {
-                setChangeIcon('filled');
-              }
-            });
-        }
-      });
+  // Handles whether to add or remove a recipe from the user's favorites
+  const handleFavorite = async () => {
+    const { authenticated, id } = await verifyJWT();
+    if (authenticated) {
+      if (changeIcon === 'outline') {
+        setChangeIcon('filled');
+        // Adds the recipe to the user's favorites
+        updateUserFavorites(id);
+      } else {
+        setChangeIcon('outline');
+        // Removes the recipe from the user's favorites
+        updateUserFavorites(id);
+      }
+    }
+  };
 
-    let ingredientDetails;
-    let instructionDetails;
+  const extractRecipeInfo = async (
+    extendedIngredients,
+    analyzedInstructions,
+    dishTypes,
+  ) => {
+    const ingredientDetails = extendedIngredients;
+    const instructionDetails = analyzedInstructions;
+    let dishes = `${dishTypes[0]},`;
+    const ingredientMap = new Map();
     let ingredients;
     let instructions;
-    let dishes = '';
+
+    // Extracts and formats the dish types
+    for (let i = 1; i < dishTypes.length; i++) {
+      if (i === dishTypes.length - 1) {
+        dishes = `${dishes} or ${dishTypes[i]}`;
+      } else {
+        dishes = `${dishes} ${dishTypes[i]},`;
+      }
+    }
+
+    // Puts each ingredient into a list item
+    ingredients = ingredientDetails.map((ingredient) => {
+      if (!ingredientMap.has(ingredient.id)) {
+        ingredientMap.set(ingredient.id, ingredient.original);
+        return (
+          <li
+            key={ingredient.id}
+            style={{ fontFamily: 'lato' }}
+            className="text-white list-disc"
+          >
+            {ingredient.measures.us.unitShort === 'servings'
+              ? `${ingredient.amount} ${ingredient.measures.us.unitShort} ${ingredient.originalName}`
+              : ingredient.original}
+          </li>
+        );
+      }
+    });
+
+    // Puts each intruction into a list item
+    instructions = instructionDetails.map((instruction) => (
+      <li
+        key={instruction.number}
+        style={{ fontFamily: 'lato' }}
+        className="text-white list-decimal mb-2"
+      >
+        {instruction.step}
+      </li>
+    ));
+    setRecipeInfo({ ingredients, instructions, dishes });
+  };
+
+  useEffect(() => {
+    (async () => {
+      // Gets the user ID from the JWT
+      const { id } = await verifyJWT();
+      checkFavoriteStatus(id, token);
+    })();
 
     if (!recipe.extendedIngredients && !recipe.analyzedInstructions) {
-      axios.get(`/recipes/information?id=${recipe.id}`).then((response) => {
-        ingredientDetails = response.data.extendedIngredients;
-        instructionDetails = response.data.analyzedInstructions[0].steps;
-        const dishTypes = response.data.dishTypes;
-        dishes = `${dishTypes[0]},`;
+      (async () => {
+        const response = await axios.get(
+          `/recipes/information?id=${recipe.id}`,
+        );
 
-        for (let i = 1; i < dishTypes.length; i++) {
-          if (i === dishTypes.length - 1) {
-            dishes = `${dishes} or ${dishTypes[i]}`;
-          } else {
-            dishes = `${dishes} ${dishTypes[i]},`;
-          }
-        }
-
-        ingredients = ingredientDetails.map((ingredient) => {
-          return (
-            <li
-              key={ingredient.id}
-              style={{ fontFamily: 'lato' }}
-              className="text-white list-disc"
-            >
-              {ingredient.measures.us.unitShort === 'servings'
-                ? `${ingredient.amount} ${ingredient.measures.us.unitShort} ${ingredient.originalName}`
-                : ingredient.original}
-            </li>
-          );
-        });
-
-        instructions = instructionDetails.map((instruction) => (
-          <li
-            key={instruction.number}
-            style={{ fontFamily: 'lato' }}
-            className="text-white list-decimal mb-2"
-          >
-            {instruction.step}
-          </li>
-        ));
-        setRecipeInfo({ ingredients, instructions, dishes });
-      });
+        extractRecipeInfo(
+          response.data.extendedIngredients,
+          response.data.analyzedInstructions[0].steps,
+          response.data.dishTypes,
+        );
+      })();
     } else {
-      ingredientDetails = recipe.extendedIngredients;
-      instructionDetails = recipe.analyzedInstructions[0].steps;
-      const dishTypes = recipe.dishTypes;
-      dishes = `${dishTypes[0]},`;
-
-      for (let i = 1; i < dishTypes.length; i++) {
-        if (i === dishTypes.length - 1) {
-          dishes = `${dishes} or ${dishTypes[i]}`;
-        } else {
-          dishes = `${dishes} ${dishTypes[i]},`;
-        }
-      }
-      const ingredientMap = new Map();
-
-      ingredients = ingredientDetails.map((ingredient) => {
-        if (!ingredientMap.has(ingredient.id)) {
-          ingredientMap.set(ingredient.id, ingredient.original);
-          return (
-            <li
-              key={ingredient.id}
-              style={{ fontFamily: 'lato' }}
-              className="text-white list-disc"
-            >
-              {ingredient.measures.us.unitShort === 'servings'
-                ? `${ingredient.amount} ${ingredient.measures.us.unitShort} ${ingredient.originalName}`
-                : ingredient.original}
-            </li>
-          );
-        }
-      });
-
-      ingredients = ingredients.filter(
-        (ingredient, index) => index === ingredients.indexOf(ingredient),
+      extractRecipeInfo(
+        recipe.extendedIngredients,
+        recipe.analyzedInstructions[0].steps,
+        recipe.dishTypes,
       );
-
-      instructions = instructionDetails.map((instruction) => (
-        <li
-          key={instruction.number}
-          style={{ fontFamily: 'lato' }}
-          className="text-white list-decimal mb-2"
-        >
-          {instruction.step}
-        </li>
-      ));
     }
-    setRecipeInfo({ ingredients, instructions, dishes });
-  }, [recipe, token]);
-
-  const handleFavorite = () => {
-    const token = localStorage.getItem('token');
-    axios
-      .get('/users/verify-jwt', {
-        headers: { Authorization: token },
-      })
-      .then((response) => {
-        if (response.data.authenticated) {
-          const userId = response.data.id;
-          if (changeIcon === 'outline') {
-            setChangeIcon('filled');
-            axios.put(
-              '/users/update/favorites',
-              {
-                id: userId,
-                favoritedRecipe: {
-                  recipeName: recipe.title,
-                  recipeId: recipe.id,
-                  recipe: recipe,
-                  image: recipe.image,
-                },
-              },
-              {
-                headers: { Authorization: token },
-              },
-            );
-          } else {
-            setChangeIcon('outline');
-            axios.put(
-              '/users/update/favorites',
-              {
-                id: userId,
-                favoritedRecipe: {
-                  recipeName: recipe.title,
-                  recipeId: recipe.id,
-                  recipe: recipe,
-                  image: recipe.image,
-                },
-              },
-              {
-                headers: { Authorization: token },
-              },
-            );
-          }
-        } else {
-          localStorage.removeItem('token');
-        }
-      });
-  };
+  }, [recipe, token, checkFavoriteStatus]);
 
   return (
     <>

@@ -2,9 +2,10 @@ import NavBar from '../Navigation/NavBar';
 import { IconUserCircle } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
-import axios from '../../axiosConfig';
+import axios from '../../utils/axiosConfig';
 import DOMPurify from 'dompurify';
 import { useNavigate } from 'react-router-dom';
+import { verifyJWT } from '../../utils/utils';
 
 const Settings = () => {
   const [username, setUsername] = useState();
@@ -17,16 +18,12 @@ const Settings = () => {
   });
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    axios
-      .get('/users/verify-jwt', {
-        headers: { Authorization: token },
-      })
-      .then((response) => {
-        if (response.data.authenticated) {
-          setUsername(response.data.username);      
-        }
-      });
+    (async () => {
+      const { authenticated, username } = await verifyJWT();
+      if (authenticated) {
+        setUsername(username);
+      }
+    })();
   }, []);
 
   const handleInput = (event) => {
@@ -74,10 +71,10 @@ const Settings = () => {
           alert(response.data.message);
 
           //Logs out the user and clears their JWT
-          localStorage.clear()
-          
+          localStorage.clear();
+
           //Navigates to homepage
-          navigate("/");
+          navigate('/');
         });
     } else {
       if (fieldValues.username !== fieldValues.confirmUsername) {

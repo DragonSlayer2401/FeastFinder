@@ -1,7 +1,7 @@
 import { Button, Modal } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import { useState } from 'react';
-import axios from '../../axiosConfig';
+import axios from '../../utils/axiosConfig';
 import DOMPurify from 'dompurify';
 
 const SignupModal = ({ show, toggle, status }) => {

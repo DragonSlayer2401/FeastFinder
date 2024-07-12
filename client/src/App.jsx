@@ -6,24 +6,14 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Settings from './components/Settings/Settings';
 import Favorites from './components/Favorites/Favorites';
 import { useEffect } from 'react';
-import axios from './axiosConfig';
 import ReactGA from 'react-ga';
+import { verifyJWT } from './utils/utils';
 
 function App() {
   const location = useLocation();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    axios
-      .get('/users/verify-jwt', {
-        headers: { Authorization: token },
-      })
-      .then((response) => {
-        if (!response.data.authenticated) {
-          localStorage.removeItem('token');         
-        }
-      });
-    
+    verifyJWT();
     ReactGA.send({
       hitType: 'pageview',
       page: location.pathname + location.search,

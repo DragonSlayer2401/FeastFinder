@@ -1,28 +1,23 @@
 import { Outlet, useNavigate } from 'react-router-dom';
 import Home from './Home/Home';
 import { useEffect, useState } from 'react';
-import axios from '../axiosConfig';
+import { verifyJWT } from '../utils/utils';
 
 const ProtectedRoute = () => {
-  const [authenticated, setAuthenticated] = useState(false);
-  const navigate = useNavigate()
+  const [userAuthenticated, setUserAuthenticated] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    axios
-      .get('/users/verify-jwt', {
-        headers: { Authorization: token },
-      })
-      .then((response) => {
-        setAuthenticated(response.data.authenticated);
-
-        if (!response.data.authenticated) {
-          localStorage.removeItem('token');
-          navigate("/")
-        }
-      });
+    (async () => {
+      const { authenticated } = await verifyJWT();
+      setUserAuthenticated(authenticated);
+      if (!authenticated) {
+        navigate('/');
+      }
+    })();
   }, [navigate]);
-  if (authenticated) {
+
+  if (userAuthenticated) {
     return <Outlet />;
   } else {
     return <Home />;
