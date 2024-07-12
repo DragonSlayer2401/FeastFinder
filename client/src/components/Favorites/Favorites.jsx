@@ -1,30 +1,28 @@
 import NavBar from '../Navigation/NavBar';
 import FoodCard from '../FoodCard';
 import { useEffect, useState } from 'react';
-import axios from '../../axiosConfig';
+import axios from '../../utils/axiosConfig';
+import { verifyJWT } from '../../utils/utils';
 
 const Favorites = () => {
   const [favorites, setFavorites] = useState();
 
-  useEffect(() => {
+  const getFavorites = async (userId) => {
     const token = localStorage.getItem('token');
+    const response = await axios.get(`/users/favorites?id=${userId}`, {
+      headers: { Authorization: token },
+    });
 
-    axios
-      .get('/users/verify-jwt', {
-        headers: { Authorization: token },
-      })
-      .then((response) => {
-        if (response.data.authenticated) {
-          const userId = response.data.id;
-          axios
-            .get(`/users/favorites?id=${userId}`, {
-              headers: { Authorization: token },
-            })
-            .then((response) => {
-              setFavorites(response.data);
-            });
-        }
-      });
+    return response.data;
+  };
+
+  useEffect(() => {
+    (async () => {
+      const { authenticated, id } = await verifyJWT();
+      if (authenticated) {
+        setFavorites(await getFavorites(id));
+      }
+    })();
   }, []);
 
   return (

@@ -6,7 +6,7 @@ import SignupModal from '../Modals/SignupModal';
 import { useEffect, useState } from 'react';
 import { IconUserCircle } from '@tabler/icons-react';
 import DOMPurify from 'dompurify';
-import axios from '../../axiosConfig';
+import { verifyJWT } from '../../utils/utils';
 
 const NavBar = () => {
   const [loginShow, setLoginShow] = useState(false);
@@ -17,19 +17,15 @@ const NavBar = () => {
   });
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    axios
-      .get('/users/verify-jwt', {
-        headers: { Authorization: token },
-      })
-      .then((response) => {
-        if (response.data.authenticated) {
-          setLoginStatus({
-            loggedIn: true,
-            username: DOMPurify.sanitize(response.data.username),
-          });
-        }
-      });
+    (async () => {
+      const { authenticated, username } = await verifyJWT();
+      if (authenticated) {
+        setLoginStatus({
+          loggedIn: true,
+          username: DOMPurify.sanitize(username),
+        });
+      }
+    })();
   }, [setLoginStatus]);
 
   const toggleLoginModal = () => {
@@ -41,9 +37,9 @@ const NavBar = () => {
   };
 
   const handleLogout = () => {
-    //logout logic
+    // Clears both JWT and homepage recipes
     localStorage.clear();
-    //Refreshes the page to show the updated state
+    // Refreshes the page to show the updated nav bar state
     window.location.reload();
   };
 

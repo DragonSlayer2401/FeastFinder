@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import NavBar from '../Navigation/NavBar';
-import axios from 'axios';
+import axios from '../../utils/axiosConfig';
 import FoodCard from '../FoodCard';
 import { Helmet } from 'react-helmet';
 
