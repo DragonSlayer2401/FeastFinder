@@ -1,12 +1,11 @@
 import { Button, Dropdown, Navbar } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import SearchBar from './SearchBar';
-import LoginModal from '../Modals/LoginModal';
-import SignupModal from '../Modals/SignupModal';
 import { useEffect, useState } from 'react';
 import { IconUserCircle } from '@tabler/icons-react';
 import DOMPurify from 'dompurify';
 import { verifyJWT } from '../../utils/utils';
+import AuthModal from '../Modals/AuthModal';
 
 const NavBar = () => {
   const [loginShow, setLoginShow] = useState(false);
@@ -104,17 +103,19 @@ const NavBar = () => {
         </Navbar.Collapse>
       </Navbar>
       {!loginStatus.loggedIn && loginShow && (
-        <LoginModal
+        <AuthModal
           show={loginShow}
           toggle={toggleLoginModal}
           status={setLoginStatus}
+          title="Login"
         />
       )}
       {!loginStatus.loggedIn && signupShow && (
-        <SignupModal
+        <AuthModal
           show={signupShow}
           toggle={toggleSignupModal}
           status={setLoginStatus}
+          title="Signup"
         />
       )}
     </>

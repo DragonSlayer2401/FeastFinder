@@ -4,13 +4,59 @@ import { useState } from 'react';
 import axios from '../../utils/axiosConfig';
 import DOMPurify from 'dompurify';
 
-const SignupModal = ({ show, toggle, status }) => {
+const AuthModal = ({ show, toggle, status, title }) => {
   const [userDetails, setUserDetails] = useState({
     username: '',
     password: '',
     confirmPassword: '',
   });
 
+  // Finds and authenticates user
+  const loginUser = async () => {
+    try {
+      const response = await axios.post('/users/login', {
+        username: DOMPurify.sanitize(userDetails.username),
+        password: DOMPurify.sanitize(userDetails.password),
+      });
+
+      alert(response.data.message);
+      if (response.data.message === 'Login successful') {
+        localStorage.setItem('token', response.data.token), toggle();
+        status({
+          loggedIn: true,
+          username: DOMPurify.sanitize(response.data.username),
+        });
+      }
+    } catch (error) {
+      alert(error.response.data.message);
+    }
+  };
+
+  // Adds user to database
+  const addUser = async () => {
+    try {
+      const response = await axios.post('/users/register', {
+        username: DOMPurify.sanitize(userDetails.username),
+        password: DOMPurify.sanitize(userDetails.password),
+      });
+
+      if (response.data === 'User added to the database') {
+        loginUser();
+      }
+    } catch (error) {
+      const message = error.response.data.message;
+      // Server-side password check
+      if (message === 'Invalid Password') {
+        alert(
+          'Invalid Password. Your password must include the following:\n\n- At least one uppercase letter\n- At least one lowercase letter\n- At least one number\n- At least 8 characters long',
+        );
+      } else {
+        alert(message);
+      }
+    }
+  };
+
+  // Updates the userDetails state
   const handleInputChange = (event) => {
     if (event.target.placeholder === 'Username') {
       setUserDetails({ ...userDetails, username: event.target.value });
@@ -21,52 +67,33 @@ const SignupModal = ({ show, toggle, status }) => {
     }
   };
 
-  const handleSubmit = async () => {
+  // Handles the submit logic for logging in
+  const handleLogin = () => {
+    loginUser();
+  };
+
+  // Handles the submit logic for signing up
+  const handleSignup = () => {
     if (userDetails.password === userDetails.confirmPassword) {
       const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+      // Client-side password check
       if (!passwordPattern.test(userDetails.password)) {
         alert(
           'Invalid Password. Your password must include the following:\n\n- At least one uppercase letter\n- At least one lowercase letter\n- At least one number\n- At least 8 characters long',
         );
         return;
       }
+      addUser();
+    } else {
+      alert('Passwords do not match.');
+    }
+  };
 
-      await axios
-        .post('/users/register', {
-          username: DOMPurify.sanitize(userDetails.username),
-          password: DOMPurify.sanitize(userDetails.password),
-        })
-        .then((response) => {
-          if (response.data === 'User added to the database') {
-            axios
-              .post('/users/login', {
-                username: DOMPurify.sanitize(userDetails.username),
-                password: DOMPurify.sanitize(userDetails.password),
-              })
-              .then((response) => {
-                alert(response.data.message);
-                if (response.data.message === 'Login successful') {
-                  localStorage.setItem('token', response.data.token), toggle();
-                  status({
-                    loggedIn: true,
-                    username: DOMPurify.sanitize(response.data.username),
-                  });
-                }
-              })
-              .catch((err) => alert(err.response.data.message));
-          }
-        })
-        .catch((err) => {
-          const message = err.response.data.message;
-
-          if (message === 'Invalid Password') {
-            alert(
-              'Invalid Password. Your password must include the following:\n\n- At least one uppercase letter\n- At least one lowercase letter\n- At least one number\n- At least 8 characters long',
-            );
-          } else {
-            alert(message);
-          }
-        });
+  const handleSubmit = () => {
+    if (title === 'Login') {
+      handleLogin();
+    } else {
+      handleSignup();
     }
   };
 
@@ -77,7 +104,7 @@ const SignupModal = ({ show, toggle, status }) => {
           className="text-white mx-auto"
           style={{ fontFamily: 'montserrat', fontWeight: '600' }}
         >
-          Signup
+          {title}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body style={{ height: '248px', background: '#F0F7F' }}>
@@ -101,19 +128,21 @@ const SignupModal = ({ show, toggle, status }) => {
             style={{ borderRadius: '0' }}
             onChange={(event) => handleInputChange(event)}
           />
-          <input
-            type="password"
-            placeholder="Confirm Password"
-            required
-            className="p-2 w-11/12"
-            style={{ borderRadius: '0' }}
-            onChange={(event) => handleInputChange(event)}
-          />
+          {title === 'Signup' && (
+            <input
+              type="password"
+              placeholder="Confirm Password"
+              required
+              className="p-2 w-11/12"
+              style={{ borderRadius: '0' }}
+              onChange={(event) => handleInputChange(event)}
+            />
+          )}
         </form>
       </Modal.Body>
       <Modal.Footer style={{ background: '#4B6D62', height: '140.67px' }}>
         <Button className="w-24" onClick={() => handleSubmit()}>
-          Signup
+          {title}
         </Button>
         <Button onClick={() => toggle()} className="w-24">
           Close
@@ -123,10 +152,11 @@ const SignupModal = ({ show, toggle, status }) => {
   );
 };
 
-SignupModal.propTypes = {
+AuthModal.propTypes = {
   show: PropTypes.bool.isRequired,
   toggle: PropTypes.func.isRequired,
   status: PropTypes.func.isRequired,
+  title: PropTypes.string.isRequired,
 };
 
-export default SignupModal;
+export default AuthModal;
