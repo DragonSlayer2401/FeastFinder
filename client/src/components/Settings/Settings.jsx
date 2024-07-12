@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { verifyJWT } from '../../utils/utils';
 
 const Settings = () => {
+  const token = localStorage.getItem('token');
   const [username, setUsername] = useState();
   const navigate = useNavigate();
   const [fieldValues, setFieldValues] = useState({
@@ -39,6 +40,40 @@ const Settings = () => {
     }
   };
 
+  const deleteUser = async () => {
+    try {
+      const response = await axios.delete('/users/delete', {
+        headers: { Authorization: token },
+      });
+      alert(response.data.message);
+      localStorage.clear();
+      navigate('/');
+    } catch (error) {
+      alert(error.response.data.message);
+    }
+  };
+
+  const updateUser = async () => {
+    const response = await axios.put(
+      '/users/update',
+      {
+        username: DOMPurify.sanitize(fieldValues.username),
+        password: DOMPurify.sanitize(fieldValues.password),
+      },
+      {
+        headers: { Authorization: token },
+      },
+    );
+
+    // Checks if the username is taken
+    if (response.data.exists) {
+      alert(response.data.message);
+      return;
+    }
+
+    alert(response.data.message);
+  };
+
   const handleSubmit = () => {
     if (fieldValues.username === '' && fieldValues.password === '') {
       alert('You need to either provide a username or password to change');
@@ -49,33 +84,12 @@ const Settings = () => {
       fieldValues.username === fieldValues.confirmUsername &&
       fieldValues.password === fieldValues.confirmPassword
     ) {
-      const token = localStorage.getItem('token');
-      axios
-        .put(
-          '/users/update',
-          {
-            username: DOMPurify.sanitize(fieldValues.username),
-            password: DOMPurify.sanitize(fieldValues.password),
-          },
-          {
-            headers: { Authorization: token },
-          },
-        )
-        .then((response) => {
-          // Checks if the username is taken
-          if (response.data.exists) {
-            alert(response.data.message);
-            return;
-          }
+      updateUser();
+      //Logs out the user and clears their JWT
+      localStorage.clear();
 
-          alert(response.data.message);
-
-          //Logs out the user and clears their JWT
-          localStorage.clear();
-
-          //Navigates to homepage
-          navigate('/');
-        });
+      //Navigates to homepage
+      navigate('/');
     } else {
       if (fieldValues.username !== fieldValues.confirmUsername) {
         alert('Usernames do not match!');
@@ -156,6 +170,13 @@ const Settings = () => {
           onClick={() => clearFields()}
         >
           Discard Changes
+        </Button>
+        <Button
+          className="w-2/3 md:w-2/5"
+          style={{ background: '#dc3545' }}
+          onClick={() => deleteUser()}
+        >
+          Delete Account
         </Button>
       </form>
     </>
