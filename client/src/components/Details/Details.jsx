@@ -160,7 +160,7 @@ const Details = () => {
       <NavBar />
       <div
         className="row gap-3 mx-auto mb-20 w-9/12 sm:w-3/5 md:w-5/12"
-        style={{ marginTop: '80px' }}
+        style={{ marginTop: '136px' }}
       >
         <div
           className="py-4 px-0 flex justify-center gap-2 items-center flex-col"
