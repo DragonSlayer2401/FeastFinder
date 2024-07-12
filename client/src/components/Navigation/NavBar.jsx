@@ -47,7 +47,7 @@ const NavBar = () => {
       <Navbar
         expand="xl"
         style={{ background: '#4B6D62', justifyContent: 'space-between', position:"fixed", top:0 }}
-        className="flex p-2 w-full"
+        className="flex p-2 w-full z-50"
       >
         <Navbar.Brand
           as={Link}
