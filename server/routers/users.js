@@ -4,7 +4,6 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 const jwt = require('jwt-simple');
-const user = require('../models/user');
 
 const protectedRoute = (req, res, next) => {
   const token = req.headers['authorization'];
@@ -15,12 +14,14 @@ const protectedRoute = (req, res, next) => {
 
   try {
     const decodedToken = jwt.decode(token, process.env.SECRET_KEY);
+
     if (!decodedToken) {
       return res.status(401).send('Invalid JWT');
     }
 
     const expired = decodedToken.expiration - Date.now() / 1000;
 
+    // Checks if JWT is expired
     if (expired > 0) {
       req.user = decodedToken;
       next();
@@ -28,6 +29,7 @@ const protectedRoute = (req, res, next) => {
       return res.status(401).send('Invalid JWT');
     }
   } catch (error) {
+    // If JWT has been modified or fails to decode
     return res.status(401).send('Invalid JWT');
   }
 };
@@ -240,6 +242,24 @@ router.put('/update', protectedRoute, (req, res) => {
       }
     });
   });
+});
+
+// Delete user
+router.delete('/delete', protectedRoute, (req, res) => {
+  const userId = req.user.id;
+  User.findByIdAndDelete(userId)
+    .then((response) => {
+      if (!response) {
+        return res
+          .status(404)
+          .json({ message: 'Could not find a user by that ID' });
+      }
+
+      res.status(200).json({ message: 'Your account has been deleted' });
+    })
+    .catch((err) => {
+      res.status(500).send(err);
+    });
 });
 
 // Update favorited recipes
