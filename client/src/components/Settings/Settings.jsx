@@ -6,10 +6,12 @@ import axios from '../../utils/axiosConfig';
 import DOMPurify from 'dompurify';
 import { useNavigate } from 'react-router-dom';
 import { verifyJWT } from '../../utils/utils';
+import CustomModal from '../Modals/CustomModal';
 
 const Settings = () => {
   const token = localStorage.getItem('token');
   const [username, setUsername] = useState();
+  const [show, setShow] = useState(false);
   const navigate = useNavigate();
   const [fieldValues, setFieldValues] = useState({
     username: '',
@@ -27,6 +29,10 @@ const Settings = () => {
     })();
   }, []);
 
+  const toggleCustomModal = () => {
+    setShow(!show);
+  };
+
   const handleInput = (event) => {
     const placeholder = event.target.placeholder;
     if (placeholder === 'Username') {
@@ -37,19 +43,6 @@ const Settings = () => {
       setFieldValues({ ...fieldValues, password: event.target.value });
     } else if (placeholder === 'Confirm Password') {
       setFieldValues({ ...fieldValues, confirmPassword: event.target.value });
-    }
-  };
-
-  const deleteUser = async () => {
-    try {
-      const response = await axios.delete('/users/delete', {
-        headers: { Authorization: token },
-      });
-      alert(response.data.message);
-      localStorage.clear();
-      navigate('/');
-    } catch (error) {
-      alert(error.response.data.message);
     }
   };
 
@@ -174,10 +167,27 @@ const Settings = () => {
         <Button
           className="w-2/3 md:w-2/5"
           style={{ background: '#dc3545' }}
-          onClick={() => deleteUser()}
+          onClick={() => toggleCustomModal()}
         >
           Delete Account
         </Button>
+        {show && (
+          <CustomModal
+            show={show}
+            toggle={toggleCustomModal}
+            colors={{
+              headerBackground: '#4B6D62',
+              bodyBackground: '#F0F7F',
+              footerBackground: '#4B6D62',
+              title: '#ffffff',
+              body: '#4B6D62',
+            }}
+            title="Confirmation"
+            body="Are you sure you want to delete your account?"
+            submitButton="Yes"
+            closeButton="No"
+          />
+        )}
       </form>
     </>
   );
