@@ -7,6 +7,7 @@ import DOMPurify from 'dompurify';
 import { useNavigate } from 'react-router-dom';
 import { verifyJWT } from '../../utils/utils';
 import CustomModal from '../Modals/CustomModal';
+import { Helmet } from 'react-helmet';
 
 const Settings = () => {
   const token = localStorage.getItem('token');
@@ -103,6 +104,9 @@ const Settings = () => {
 
   return (
     <>
+      <Helmet>
+        <title>Settings</title>
+      </Helmet>
       <NavBar />
       <form
         className="flex flex-col gap-3 items-center justify-center h-screen"
