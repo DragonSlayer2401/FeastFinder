@@ -98,7 +98,7 @@ const AuthModal = ({ show, toggle, status, title }) => {
   };
 
   return (
-    <Modal show={show} onHide={() => toggle()}>
+    <Modal show={show} onHide={() => toggle()} centered>
       <Modal.Header style={{ background: '#4B6D62', height: '140.67px' }}>
         <Modal.Title
           className="text-white mx-auto"
