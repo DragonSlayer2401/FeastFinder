@@ -1,7 +1,7 @@
 # Maintenance Plan
 
 ## Frontend Components
-<br>
+
 Details (no props) - The details page
 <br>
 Favorites (no props) - The favorites page
@@ -28,7 +28,7 @@ App (no props) - Contains all of the frontend routes using React Router
 <br>
 
 ## Frontend Misc Files
-<br>
+
 axiosConfig - Contains the configuration for axios such as the base url. This should be imported anywhere you need to use axios in the frontend.
 <br>
 utils - Contains functions that are used multiple times throughout the app.
