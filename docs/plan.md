@@ -4,9 +4,12 @@
 
 Details (no props) - The details page
 <br>
+<br>
 Favorites (no props) - The favorites page
 <br>
+<br>
 Home (no props) - The home page
+<br>
 <br>
 Results (no props) - The search results page
 <br>
