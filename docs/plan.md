@@ -94,3 +94,11 @@ SECRET_KEY - Contains the secret key used by the JWT
 <br>
 <br>
 API_KEY - Contains the Spoonacular API key
+<br>
+
+## Scheduled Maintenance
+
+- Backup the user database once at the end of every other week
+- Delete users who have been inactive for 1 year or more 
+- Manually test the entire application after each new feature implementation
+- Update the Procfile if the location of the server changes
