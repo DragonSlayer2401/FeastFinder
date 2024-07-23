@@ -1,5 +1,14 @@
 # Maintenance Plan
 
+## Local Installation
+```
+cd server
+npm install
+npm run dev
+cd client
+npm install 
+npm run dev
+```
 ## Frontend Components
 
 Details (no props) - The details page
