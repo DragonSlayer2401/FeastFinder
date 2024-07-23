@@ -43,3 +43,54 @@ App (no props) - Contains all of the frontend routes using React Router
 axiosConfig - Contains the configuration for axios such as the base url. This should be imported anywhere you need to use axios in the frontend.
 <br>
 utils - Contains functions that are used multiple times throughout the app.
+<br>
+
+## Backend Routes
+
+/recipes/search - Calls the Spoonacular complex search api endpoint and returns the results. Requires a query parameter called query that contains what you are searching for.
+<br>
+<br>
+/recipes/random - Calls the Spoonacular random api endpoint to get random recipes and then returns the results.
+<br>
+<br>
+/recipes/information - Calls the Spoonacular information api endpoint to get the recipe information then returns the results. Requires a query parameter called id that contains the recipe id.
+<br>
+<br>
+/users/favorites - Gets the user's favorited recipes. Requires both a valid JWT and a query parameter containing the user id. Returns the user's favorites.
+<br>
+<br>
+/users/register - Adds the user to the database after they submit the signup form. Requires both the username and password to be passed into the request body. Returns a success message.
+<br>
+<br>
+/users/login - Finds the user in the database and creates a 10 day JWT. Requires the both the username and password to be passed into the request body. Returns a success message, the username, user id, and token.
+<br>
+<br>
+/users/verify-jwt - Verfies whether the provided JWT is valid or not. Requires the JWT. Returns either the message "Valid JWT" or "Invalid JWT", a boolean value for whether they are authenticated or not, and the username and user id if it was a valid JWT.
+<br>
+<br>
+/users/update - Changes the user's username or password or both. Requires a vslid JWT and a username or password or both to be passed into the request body. Returns a success message based on what was changed, a boolean of whether the user already exists or not, and the new username if it was changed.
+<br>
+<br>
+/users/delete - Deletes a user from the database. Requires a valid JWT. Returns a success message.
+<br>
+<br>
+/users/update/favorites - Updates the user's favorited recipes. Requires a valid JWT and the user id and recipe to be passed into the request body. Returns a success message.
+<br>
+
+## Models
+
+user - Represents the user that is stored in the database.\
+<br>
+
+## Backend ENV Variables
+
+PORT - Contains the port number for the server
+<br>
+<br>
+CONNECTION_URL - Contains the Mongo connection url
+<br>
+<br>
+SECRET_KEY - Contains the secret key used by the JWT
+<br>
+<br>
+API_KEY - Contains the Spoonacular API key
